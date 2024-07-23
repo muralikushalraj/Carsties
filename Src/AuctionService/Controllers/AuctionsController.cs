@@ -103,6 +103,7 @@ namespace AuctionService.Controllers
             if (auction == null) return NotFound();
 
             if (auction.Seller != User.Identity.Name) return Forbid();
+
             _context.Auctions.Remove(auction);
             await _publishEndpoint.Publish<AuctionDeleted>(new { Id = auction.Id.ToString() });
 
