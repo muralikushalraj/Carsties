@@ -1,0 +1,27 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 as build
+WORKDIR /app
+EXPOSE  80
+
+# copy all .csproj files and restore as distinct layers.   Use of the same COPY command
+# for every dockerfile in the project to take advantage of docker caching
+COPY Carsties.sln Carsties.sln
+COPY Src/AuctionService/AuctionService.csproj Src/AuctionService/AuctionService.csproj
+COPY Src/SearchService/SearchService.csproj Src/SearchService/SearchService.csproj
+COPY Src/GatewayService/GatewayService.csproj Src/GatewayService/GatewayService.csproj
+COPY Src/Contracts/Contracts.csproj Src/Contracts/Contracts.csproj
+COPY Src/IdentityService/IdentityService.csproj Src/IdentityService/IdentityService.csproj
+
+# Restore package deps
+RUN dotnet restore Carsties.sln
+
+# Copy the app folders over
+COPY Src/AuctionService Src/AuctionService
+COPY Src/Contracts Src/Contracts
+WORKDIR /app/Src/AuctionService
+RUN dotnet publish -c Release -o /app/Src/out
+
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 
+WORKDIR /app
+COPY --from=build /app/Src/out .
+ENTRYPOINT [ "dotnet", "AuctionService.dll" ]

@@ -28,12 +28,11 @@ builder.Services.AddMassTransit(x =>
         //    r.Interval(5, TimeSpan.FromSeconds(10));
         //});
 
-        //cfg.Host(builder.Configuration["RabbitMq:Host"], "/", host =>
-        //{
-        //    host.Username(builder.Configuration.GetValue("RabbitMq:Username", "guest"));
-        //    host.Password(builder.Configuration.GetValue("RabbitMq:Password", "guest"));
-        //});
-
+        cfg.Host(builder.Configuration["RabbitMq:Host"], "/", host =>
+        {
+            host.Username(builder.Configuration.GetValue("RabbitMq:Username", "guest"));
+            host.Password(builder.Configuration.GetValue("RabbitMq:Password", "guest"));
+        });
         cfg.ReceiveEndpoint("search-auction-created", e =>
         {
             e.UseMessageRetry(r => r.Interval(5, 5));
